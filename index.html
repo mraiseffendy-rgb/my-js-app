@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>RANZCHAT — v10</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0a0a0a;--paper:#fffdf5;--white:#fff;--yellow:#ffd93d;--yellow-dark:#f4c800;--red:#ff3b3b;--red-dark:#c1121f;--blue:#2b7fff;--blue-dark:#0055cc;--green:#25d366;--green-dark:#0f8a3e;--purple:#a78bfa;--pink:#ff7eb6;--shadow:5px 5px 0 var(--ink);--shadow-sm:3px 3px 0 var(--ink);--shadow-lg:8px 8px 0 var(--ink);--border:3px solid var(--ink);--border-thin:2.5px solid var(--ink)}
+*{box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{margin:0;background:radial-gradient(circle at 15% 15%,#ffd93d33 0%,transparent 38%),radial-gradient(circle at 85% 85%,#2b7fff33 0%,transparent 38%),var(--paper);background-attachment:fixed;color:var(--ink);font-family:'Comic Neue','Comic Sans MS',cursive;font-size:15px;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(circle,rgba(0,0,0,.11) 1px,transparent 1.4px);background-size:18px 18px;pointer-events:none;z-index:0;opacity:.55}
+body > *{position:relative;z-index:1}
+h1,h2,h3,.brand,button{font-family:'Bangers',impact,sans-serif;letter-spacing:1.2px}
+button{cursor:pointer;border:0}
+button:disabled{opacity:.55;cursor:not-allowed}
+input,textarea{font-family:'Comic Neue','Comic Sans MS',cursive;width:100%;background:var(--white);color:var(--ink);border:var(--border);border-radius:8px;padding:11px 13px;outline:none;font-size:14.5px;font-weight:700;box-shadow:inset 2px 2px 0 rgba(0,0,0,.09);transition:transform .08s,box-shadow .08s}
+input:focus,textarea:focus{background:#fffbe6;transform:translate(-1px,-1px);box-shadow:inset 2px 2px 0 rgba(0,0,0,.09),3px 3px 0 var(--ink)}
+small,.muted{color:#555;font-size:12px;font-weight:700}
+.hidden{display:none!important}
+.btn{background:var(--yellow);color:var(--ink);border:var(--border);border-radius:10px;padding:10px 16px;font-weight:900;font-size:16px;box-shadow:var(--shadow-sm);transition:transform .08s,box-shadow .08s;text-transform:uppercase;letter-spacing:1.5px}
+.btn:hover{background:var(--yellow-dark)}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0}
+.btn.red{background:var(--red);color:#fff}.btn.red:hover{background:var(--red-dark)}
+.btn.green{background:var(--green);color:#fff}.btn.green:hover{background:var(--green-dark)}
+.btn.ghost{background:var(--white)}
+
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:24px;overflow-y:auto}
+.auth{width:min(440px,100%);background:var(--white);border:var(--border);border-radius:14px;box-shadow:var(--shadow-lg);padding:34px 28px 28px;position:relative;transform:rotate(-.6deg)}
+.auth::before{content:"★ SIGN IN ★";position:absolute;top:-20px;left:20px;background:var(--red);color:#fff;padding:5px 15px;border:var(--border);border-radius:8px;font-family:'Bangers',sans-serif;font-size:18px;letter-spacing:2px;transform:rotate(-5deg);box-shadow:var(--shadow-sm)}
+.auth h1{font-size:46px;margin:6px 0 4px;line-height:.95;text-transform:uppercase;color:var(--ink);text-shadow:3px 3px 0 var(--yellow),5px 5px 0 var(--ink);letter-spacing:2px}
+.auth h1 span{color:var(--red)}
+.auth .tag{font-family:'Permanent Marker',cursive;font-size:13px;color:#555;margin:0 0 20px;transform:rotate(-1.2deg);display:inline-block}
+.auth form{display:grid;gap:12px;margin-top:4px}
+.auth .switch{background:transparent;color:var(--blue-dark);padding:10px;margin-top:16px;font-family:'Comic Neue',cursive;font-weight:900;text-decoration:underline;font-size:13.5px;width:100%;border:0}
+
+.notice{padding:11px 14px;border:var(--border);border-radius:8px;background:#e6f0ff;color:var(--ink);font-weight:700;font-size:13px;margin:10px 0;box-shadow:var(--shadow-sm);line-height:1.45}
+.notice.error{background:#ffe1e1;color:var(--red-dark)}
+.notice.success{background:#d9f8e4;color:var(--green-dark)}
+.notice.warning{background:#fff3cd;color:#856404;border-color:#856404}
+
+/* LAYOUT UTAMA */
+.app{display:flex;justify-content:center;height:100vh;padding:16px;overflow:hidden;position:relative}
+.app.in-chat{padding:0} /* Full screen on chat */
+
+/* CONTAINER KONTAK (DASHBOARD) */
+.sidebar{width:100%;max-width:600px;background:var(--white);border:var(--border);border-radius:14px;box-shadow:var(--shadow);padding:18px 16px 14px;display:flex;flex-direction:column;gap:12px;position:relative;height:calc(100vh - 32px)}
+.sidebar::before{content:"CHATS";position:absolute;top:-14px;right:16px;background:var(--blue);color:#fff;padding:3px 12px;border:var(--border);border-radius:6px;font-family:'Bangers',sans-serif;font-size:14px;letter-spacing:2px;transform:rotate(3deg);box-shadow:var(--shadow-sm)}
+.brand{font-size:32px;margin:0;letter-spacing:2px;text-transform:uppercase;color:var(--ink);text-shadow:2px 2px 0 var(--yellow),4px 4px 0 var(--ink);line-height:1}
+.brand span{color:var(--red)}
+.me{padding:10px 12px;border:var(--border);border-radius:10px;background:var(--yellow);box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:10px}
+.me-row{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.avatar{width:44px;height:44px;flex:0 0 44px;border-radius:50%;background:var(--white);border:2.5px solid var(--ink);display:grid;place-items:center;font-weight:900;font-family:'Bangers',sans-serif;font-size:20px;color:var(--ink);overflow:hidden;box-shadow:2px 2px 0 var(--ink);position:relative}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.user-meta{min-width:0;flex:1}
+.user-meta b{display:block;font-family:'Bangers',sans-serif;font-size:17px;letter-spacing:1px;overflow-wrap:anywhere;color:var(--ink);line-height:1.1}
+.user-meta small{display:block;font-size:11px;font-weight:700;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.copy{background:var(--white);border:2px solid var(--ink);color:var(--ink);padding:5px 10px;border-radius:6px;font-size:11px;font-weight:900;box-shadow:2px 2px 0 var(--ink);font-family:'Bangers',sans-serif;letter-spacing:1px;cursor:pointer;transition:transform .06s}
+.copy:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.row{display:flex;gap:6px;align-items:center}
+.row>*{min-width:0}
+.search input{font-size:13px;padding:10px 12px;background:var(--white)}
+.label-comic{font-family:'Bangers',sans-serif;font-size:15px;letter-spacing:1.5px;color:var(--ink);margin:2px 0 0 3px;display:inline-block;padding:1px 8px;background:var(--yellow);border:2px solid var(--ink);border-radius:5px;box-shadow:2px 2px 0 var(--ink);transform:rotate(-1.5deg)}
+.list{display:flex;flex-direction:column;gap:7px;overflow-y:auto;flex:1;min-height:0;padding:4px 4px 0;margin:0 -4px}
+.list::-webkit-scrollbar,.content::-webkit-scrollbar,.modal-body::-webkit-scrollbar{width:10px}
+.list::-webkit-scrollbar-thumb,.content::-webkit-scrollbar-thumb,.modal-body::-webkit-scrollbar-thumb{background:var(--ink);border-radius:5px}
+.contact{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--white);border:2.5px solid var(--ink);border-radius:10px;padding:9px 10px;color:var(--ink);font-weight:700;font-family:'Comic Neue',cursive;box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s,background .12s;cursor:pointer}
+.contact:hover{background:#fffce0;transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.contact:active{transform:translate(3px,3px);box-shadow:0 0 0}
+.contact .user-meta small{font-size:11.5px;color:#444;font-weight:700}
+.contact .badge{background:var(--red);color:#fff;font-family:'Bangers',sans-serif;font-size:13px;padding:2px 8px;border-radius:10px;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);min-width:24px;text-align:center;letter-spacing:1px}
+.contact .search-tag{background:var(--yellow);color:var(--ink);font-family:'Bangers',sans-serif;font-size:10px;padding:1px 6px;border-radius:8px;border:1.5px solid var(--ink);letter-spacing:1px;margin-left:4px}
+
+/* CONTAINER CHAT (HALAMAN BARU) */
+.main{display:none;flex-direction:column;width:100%;max-width:800px;height:100vh;margin:0 auto;background:var(--paper);position:relative}
+.app.in-chat .sidebar{display:none}
+.app.in-chat .main{display:flex}
+.main .content{flex:1;min-height:0;overflow-y:auto;position:relative;padding:18px 18px 8px}
+.content::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,#ffd93d22 0%,transparent 40%),radial-gradient(circle at 80% 70%,#2b7fff22 0%,transparent 40%);pointer-events:none;z-index:0}
+.content > *{position:relative;z-index:1}
+
+/* TOPBAR CHAT */
+.topbar{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:var(--border);background:linear-gradient(180deg,var(--white) 0%,#fffbe6 100%);min-height:70px;position:relative;z-index:10}
+.topbar .avatar{width:44px;height:44px;flex:0 0 44px;cursor:pointer;transition:transform .1s}
+.topbar .avatar:hover{transform:scale(1.05)}
+.topbar-info{flex:1;min-width:0}
+.topbar-info b{display:block;font-family:'Bangers',sans-serif;font-size:20px;letter-spacing:1.2px;color:var(--ink);line-height:1.05;overflow-wrap:anywhere;cursor:pointer}
+.topbar-info b:hover{text-decoration:underline}
+.topbar-info small{display:block;font-size:12px;color:#444;font-weight:700;margin-top:1px}
+.status{font-size:11px;font-weight:900;font-family:'Bangers',sans-serif;letter-spacing:1.5px;padding:3px 9px;border:2px solid var(--ink);border-radius:6px;background:var(--green);color:#fff;box-shadow:2px 2px 0 var(--ink);text-transform:uppercase}
+.status.offline{background:var(--red)}
+.topbar-actions{position:relative;display:flex;align-items:center;gap:6px}
+.icon-btn{background:var(--white);border:2.5px solid var(--ink);border-radius:50%;width:42px;height:42px;padding:0;color:var(--ink);display:grid;place-items:center;box-shadow:2px 2px 0 var(--ink);transition:transform .06s,box-shadow .06s,background .12s;cursor:pointer}
+.icon-btn:hover{background:var(--yellow)}
+.icon-btn:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.icon-btn.close-x{background:var(--red);color:#fff}
+.icon-btn.close-x:hover{background:var(--red-dark)}
+
+/* MENU DROPDOWN */
+.menu-dropdown{position:absolute;top:52px;right:0;background:var(--white);border:var(--border);border-radius:12px;padding:8px;min-width:240px;box-shadow:var(--shadow-lg);z-index:50;animation:dropIn .18s ease-out}
+.menu-dropdown::before{content:"";position:absolute;top:-10px;right:14px;width:16px;height:16px;background:var(--white);border-top:var(--border);border-left:var(--border);transform:rotate(45deg)}
+@keyframes dropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.menu-header{padding:8px 12px 10px;border-bottom:2px dashed var(--ink);margin-bottom:6px}
+.menu-header .mh-name{font-family:'Bangers',sans-serif;font-size:18px;letter-spacing:1.2px;color:var(--ink)}
+.menu-header .mh-id{font-size:11px;font-weight:700;color:#666;font-family:'Courier New',monospace}
+.menu-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;color:var(--ink);padding:10px 13px;border-radius:8px;font-family:'Comic Neue',cursive;font-weight:700;font-size:14px;cursor:pointer;transition:background .12s}
+.menu-item:hover{background:var(--yellow)}
+.menu-item.danger-item:hover{background:#ffe1e1;color:var(--red-dark)}
+.menu-item .mi-icon{font-size:18px;width:24px;text-align:center;flex:0 0 24px}
+.menu-item .mi-badge{background:var(--red);color:#fff;font-family:'Bangers',sans-serif;font-size:11px;padding:1px 7px;border-radius:9px;border:1.5px solid var(--ink);margin-left:auto}
+.menu-sep{height:2px;background:transparent;border-top:2px dashed var(--ink);margin:6px 4px;opacity:.4}
+
+/* ACTION BAR (LONG PRESS) */
+.chat-action-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--red);color:#fff;border-bottom:var(--border);animation:slideDown .18s ease-out}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.chat-action-bar.hidden{display:none}
+.action-icon{width:44px;height:44px;border-radius:50%;border:2.5px solid var(--ink);background:var(--white);color:var(--ink);font-size:20px;display:grid;place-items:center;cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:transform .06s;font-family:'Bangers',sans-serif}
+.action-icon:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.action-icon.disabled{opacity:.4;cursor:not-allowed}
+.action-info{flex:1;text-align:center;font-family:'Bangers',sans-serif;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;color:#fff;text-shadow:1.5px 1.5px 0 var(--ink)}
+
+/* MESSAGES & BUBBLES */
+.messages{display:flex;flex-direction:column;gap:12px;padding:6px 4px;min-height:60px}
+.bubble{max-width:min(80%,520px);padding:10px 12px 6px;border:var(--border-thin);border-radius:14px;overflow-wrap:anywhere;white-space:pre-wrap;position:relative;font-size:14.5px;line-height:1.38;font-weight:700;box-shadow:var(--shadow-sm);animation:bubbleIn .22s ease-out;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.bubble.selected{border-color:var(--red);box-shadow:0 0 0 3px var(--red),3px 3px 0 var(--ink);transform:scale(.99)}
+.bubble.mine{align-self:flex-end;background:var(--yellow);border-top-right-radius:4px;color:var(--ink)}
+.bubble.theirs{align-self:flex-start;background:var(--white);border-top-left-radius:4px;color:var(--ink)}
+.bubble.theirs::before{content:"";position:absolute;left:-14px;top:14px;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-right:12px solid var(--ink)}
+.bubble.theirs::after{content:"";position:absolute;left:-10px;top:16px;width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-right:10px solid var(--white)}
+.bubble.mine::before{content:"";position:absolute;right:-14px;top:14px;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:12px solid var(--ink)}
+.bubble.mine::after{content:"";position:absolute;right:-10px;top:16px;width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:10px solid var(--yellow)}
+.bubble .meta{display:flex;justify-content:flex-end;align-items:center;gap:5px;margin-top:4px;font-size:10.5px;color:#555;font-family:'Comic Neue',cursive;font-weight:700}
+.bubble .msg-ticks{display:inline-flex;align-items:center;color:#555}
+.bubble .msg-ticks.read{color:var(--blue)}
+.bubble .msg-ticks svg{display:block}
+
+/* MEDIA */
+.media-box{background:#2a3942;border:2.5px solid var(--ink);border-radius:10px;padding:14px 18px;display:inline-flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:4px;transition:transform .1s,background .15s;box-shadow:2px 2px 0 var(--ink);min-width:120px;user-select:none}
+.media-box:hover{background:#3a4a55}
+.media-box:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.media-icon{font-size:26px;line-height:1}
+.media-label{font-family:'Bangers',sans-serif;font-size:18px;letter-spacing:2.5px;color:#fff;text-shadow:1.5px 1.5px 0 var(--ink)}
+.media-viewer{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:500;display:grid;place-items:center;padding:0;margin:0}
+.media-viewer.hidden{display:none}
+.media-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.15);color:#fff;border:2.5px solid #fff;border-radius:50%;width:46px;height:46px;font-size:24px;font-family:'Bangers',sans-serif;cursor:pointer;z-index:501;box-shadow:0 2px 10px rgba(0,0,0,.5);transition:background .15s,transform .1s}
+.media-close:hover{background:rgba(255,255,255,.3)}
+.media-close:active{transform:scale(.92)}
+.media-content{width:100%;height:100%;display:grid;place-items:center;padding:60px 20px 20px}
+.media-content img,.media-content video{max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 0 40px rgba(0,0,0,.8);border:2px solid #fff}
+.media-caption{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;font-family:'Bangers',sans-serif;font-size:14px;letter-spacing:2px;background:rgba(0,0,0,.5);padding:6px 14px;border-radius:10px;border:1.5px solid #fff}
+
+/* TYPING */
+.typing-row{display:flex;justify-content:flex-start;padding:4px 4px 8px;margin-top:2px}
+.typing-row.hidden{display:none}
+.typing-indicator{background:var(--white);border:var(--border-thin);border-radius:14px;border-top-left-radius:4px;box-shadow:var(--shadow-sm);padding:11px 16px;display:inline-flex;align-items:center;gap:5px;animation:bubbleIn .2s ease-out;position:relative}
+.typing-indicator::before{content:"";position:absolute;left:-14px;top:12px;width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-right:12px solid var(--ink)}
+.typing-indicator::after{content:"";position:absolute;left:-10px;top:14px;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:10px solid var(--white)}
+.typing-dot{width:9px;height:9px;background:var(--ink);border-radius:50%;animation:wave 1.3s infinite ease-in-out}
+.typing-dot:nth-child(2){animation-delay:.18s}
+.typing-dot:nth-child(3){animation-delay:.36s}
+@keyframes wave{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-7px);opacity:1}}
+
+/* COMPOSER */
+.composer{display:flex;gap:8px;align-items:flex-end;padding:12px 16px 16px;background:var(--white);border-top:var(--border);position:relative;z-index:10}
+.composer textarea{resize:none;min-height:48px;max-height:130px;border-radius:24px;padding:12px 16px;background:var(--white);font-size:14.5px}
+.composer textarea:focus{transform:none}
+.composer .send{min-width:48px;min-height:48px;border-radius:50%;padding:0;display:grid;place-items:center;background:var(--green);border:2.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);transition:transform .06s,box-shadow .06s,background .12s;color:#fff}
+.composer .send:hover{background:var(--green-dark)}
+.composer .send:active{transform:translate(3px,3px);box-shadow:0 0 0}
+.filebtn{background:var(--blue);color:#fff;border:2.5px solid var(--ink);border-radius:50%;width:48px;height:48px;display:grid;place-items:center;cursor:pointer;font-size:24px;font-weight:900;box-shadow:3px 3px 0 var(--ink);line-height:1;flex:0 0 48px}
+.filebtn:hover{background:var(--blue-dark)}
+
+/* FAB π */
+.fab-pi{position:fixed;bottom:24px;right:24px;width:64px;height:64px;border-radius:50%;background:var(--red);color:#fff;border:var(--border);box-shadow:var(--shadow);font-family:'Bangers',sans-serif;font-size:36px;line-height:1;padding:0;z-index:60;display:grid;place-items:center;transition:transform .1s,box-shadow .1s,background .15s}
+.fab-pi:hover{background:var(--red-dark);transform:scale(1.06)}
+.fab-pi:active{transform:translate(3px,3px);box-shadow:0 0 0}
+.fab-pi.hidden{display:none}
+
+/* MODALS */
+.modal{position:fixed;inset:0;background:rgba(10,10,10,.75);display:grid;place-items:center;z-index:200;padding:16px;animation:fadeIn .2s ease-out}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-content{background:var(--white);border:var(--border);border-radius:14px;width:min(760px,100%);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);position:relative;animation:modalIn .25s cubic-bezier(.34,1.56,.64,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.92) rotate(-2deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+.modal-content.small{width:min(480px,100%)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:var(--border);background:var(--yellow)}
+.modal-header h2{margin:0;font-size:22px;letter-spacing:1.5px;color:var(--ink);text-transform:uppercase;text-shadow:1.5px 1.5px 0 #fff}
+.modal-close{background:var(--red);color:#fff;border:2.5px solid var(--ink);border-radius:50%;width:36px;height:36px;padding:0;font-size:22px;line-height:1;font-family:'Bangers',sans-serif;box-shadow:2px 2px 0 var(--ink);transition:transform .06s}
+.modal-close:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.modal-tabs{display:flex;border-bottom:var(--border);background:#fffbe6;overflow-x:auto}
+.tab-btn{background:transparent;color:var(--ink);padding:12px 20px;border:0;border-bottom:4px solid transparent;font-family:'Bangers',sans-serif;font-size:16px;letter-spacing:1.5px;font-weight:900;cursor:pointer;white-space:nowrap;text-transform:uppercase}
+.tab-btn:hover{background:#ffec99}
+.tab-btn.active{background:var(--white);border-bottom-color:var(--red);color:var(--red-dark)}
+.modal-body{padding:18px 20px;overflow-y:auto;flex:1;min-height:0;background:var(--white)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* DEV CARDS & LISTS */
+.dev-user-card{background:#fffbe6;border:2.5px solid var(--ink);border-radius:10px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:3px 3px 0 var(--ink)}
+.dev-user-card .avatar{width:40px;height:40px;flex:0 0 40px;font-size:17px}
+.dev-user-card .info{flex:1;min-width:140px}
+.dev-user-card .info b{font-family:'Bangers',sans-serif;font-size:17px;letter-spacing:.8px;display:block}
+.dev-user-card .info small{display:block;font-size:11px;color:#555;margin-top:2px;font-family:'Courier New',monospace}
+.dev-user-card .badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.dev-badge{font-size:10px;padding:2px 8px;border-radius:9px;background:#fff;color:var(--ink);font-family:'Bangers',sans-serif;letter-spacing:1px;border:2px solid var(--ink);text-transform:uppercase}
+.dev-badge.dev{background:var(--purple);color:#fff}
+.dev-badge.verified{background:var(--blue);color:#fff}
+.dev-badge.banned{background:var(--red);color:#fff}
+.dev-badge.temp{background:#ff8c42;color:#fff}
+.dev-badge.flags{background:#ffd93d;color:var(--ink)}
+.dev-user-card .btns{display:flex;gap:5px;flex-wrap:wrap}
+.dev-user-card .btns button{font-size:11px;padding:6px 11px;font-family:'Bangers',sans-serif;letter-spacing:1px;border:2px solid var(--ink);border-radius:6px;background:#fff;color:var(--ink);box-shadow:2px 2px 0 var(--ink);cursor:pointer;transition:transform .06s;text-transform:uppercase}
+.dev-user-card .btns button:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.dev-user-card .btns button.danger{background:var(--red);color:#fff}
+.dev-user-card .btns button.success{background:var(--green);color:#fff}
+
+/* APPEALS & REPORTS */
+.appeal-card,.report-card{background:#fffbe6;border:2.5px solid var(--ink);border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:3px 3px 0 var(--ink);position:relative}
+.appeal-card.pending{border-left-width:8px;border-left-color:#ff8c42}
+.appeal-card.approved{border-left-width:8px;border-left-color:var(--green)}
+.appeal-card.rejected,.appeal-card.expired{border-left-width:8px;border-left-color:var(--red)}
+.appeal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.appeal-header b{font-family:'Bangers',sans-serif;font-size:18px;letter-spacing:1px}
+.appeal-status{font-size:11px;padding:3px 10px;border-radius:10px;border:2px solid var(--ink);background:#fff;font-family:'Bangers',sans-serif;text-transform:uppercase;letter-spacing:1px;box-shadow:2px 2px 0 var(--ink)}
+.appeal-status.pending{background:#ff8c42;color:#fff}
+.appeal-status.approved{background:var(--green);color:#fff}
+.appeal-status.rejected{background:var(--red);color:#fff}
+.appeal-status.expired{background:#999;color:#fff}
+.appeal-reason{background:#ffe1e1;border:2px solid var(--red-dark);border-radius:6px;padding:8px 10px;font-size:12.5px;color:var(--red-dark);margin-bottom:8px;font-weight:700;line-height:1.4}
+.appeal-chrono{background:#fff;border:2px solid var(--ink);border-radius:6px;padding:10px;font-size:12.5px;line-height:1.55;color:var(--ink);white-space:pre-wrap;margin-bottom:8px;max-height:150px;overflow-y:auto;font-weight:700}
+.appeal-meta{font-size:11px;color:#555;margin-bottom:8px;font-weight:700}
+.appeal-actions{display:flex;gap:8px}
+.appeal-actions button{font-size:12px;padding:8px 14px;font-family:'Bangers',sans-serif;letter-spacing:1px;border:2.5px solid var(--ink);border-radius:6px;background:#fff;cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:transform .06s;text-transform:uppercase}
+.appeal-actions button:active{transform:translate(2px,2px);box-shadow:0 0 0}
+.appeal-actions .approve{background:var(--green);color:#fff}
+.appeal-actions .reject{background:var(--red);color:#fff}
+
+.log-item{padding:10px 0;border-bottom:2px dashed rgba(10,10,10,.2);font-size:12.5px;line-height:1.55;font-weight:700}
+.log-item:last-child{border-bottom:0}
+.log-time{font-size:11px;color:#777;margin-top:2px}
+
+/* BAN FLOW SCREENS */
+.ban-wrap{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 20% 20%,#ff3b3b22 0%,transparent 40%),radial-gradient(circle at 80% 80%,#ffd93d22 0%,transparent 40%),var(--paper);overflow-y:auto}
+.ban-card{width:min(500px,100%);background:var(--white);border:var(--border);border-radius:16px;padding:32px 26px 26px;text-align:center;box-shadow:var(--shadow-lg);position:relative;transform:rotate(-.3deg)}
+.ban-icon{font-size:74px;margin-bottom:6px;line-height:1;display:block}
+.ban-icon-success{width:96px;height:96px;border-radius:50%;background:var(--green);color:#fff;border:var(--border);box-shadow:var(--shadow-sm);display:grid;place-items:center;margin:0 auto 14px;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+.ban-icon-success svg{width:54px;height:54px}
+.ban-icon-error{font-size:74px;margin-bottom:6px;line-height:1;display:block}
+.ban-icon-spinner{width:96px;height:96px;border:var(--border);border-radius:50%;background:var(--yellow);box-shadow:var(--shadow-sm);display:grid;place-items:center;margin:0 auto 14px}
+.spinner{width:54px;height:54px;border:5px solid var(--ink);border-top-color:transparent;border-radius:50%;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(0) rotate(-180deg)}70%{transform:scale(1.12) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
+.ban-card h1{font-size:28px;margin:6px 0 8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink);text-shadow:2px 2px 0 var(--yellow),3px 3px 0 var(--ink);line-height:1.1}
+.ban-card h1.success-title{color:var(--green-dark);text-shadow:2px 2px 0 var(--green),3px 3px 0 var(--ink)}
+.ban-subtitle{color:#444;font-size:14px;font-weight:700;margin:0 0 18px;line-height:1.5}
+.ban-reason-box{background:#ffe1e1;border:var(--border-thin);border-radius:10px;padding:12px 14px;text-align:left;margin-bottom:12px;box-shadow:2px 2px 0 var(--ink)}
+.ban-reason-label{font-family:'Bangers',sans-serif;font-size:12px;letter-spacing:2px;color:var(--red-dark);margin-bottom:5px;text-transform:uppercase}
+.ban-reason-text{color:var(--red-dark);font-size:13.5px;line-height:1.5;font-weight:700}
+.ban-info-box{background:#fffbe6;border:var(--border-thin);border-radius:10px;padding:13px 15px;text-align:left;margin-bottom:16px;font-size:13px;color:#333;line-height:1.6;font-weight:700;box-shadow:2px 2px 0 var(--ink)}
+.ban-info-box p{margin:0 0 8px}
+.ban-info-box p:last-child{margin:0}
+.ban-info-box.success-box{background:#d9f8e4;border-color:var(--green-dark);color:var(--green-dark)}
+.ban-info-box.error-box{background:#ffe1e1;border-color:var(--red-dark);color:var(--red-dark)}
+.ban-primary{width:100%;padding:13px;background:var(--yellow);color:var(--ink);border:var(--border);border-radius:10px;font-size:17px;font-weight:900;font-family:'Bangers',sans-serif;letter-spacing:2px;text-transform:uppercase;margin-top:6px;box-shadow:var(--shadow-sm);transition:transform .08s,box-shadow .08s,background .12s}
+.ban-primary:hover:not(:disabled){background:var(--yellow-dark)}
+.ban-primary:active:not(:disabled){transform:translate(3px,3px);box-shadow:0 0 0}
+.ban-primary.success-btn{background:var(--green);color:#fff}
+.ban-primary.success-btn:hover{background:var(--green-dark)}
+.ban-secondary{width:100%;padding:13px;background:var(--white);color:var(--ink);border:var(--border);border-radius:10px;font-size:17px;font-weight:900;font-family:'Bangers',sans-serif;letter-spacing:2px;text-transform:uppercase;margin-top:6px;box-shadow:var(--shadow-sm)}
+.ban-secondary:active{transform:translate(3px,3px);box-shadow:0 0 0}
+.ban-actions{display:flex;gap:10px;margin-top:14px}
+.ban-actions button{flex:1;margin-top:0}
+#appealTextarea{background:var(--white);border:var(--border);color:var(--ink);border-radius:10px;padding:12px;font-size:14px;resize:vertical;min-height:150px;line-height:1.5;margin-bottom:8px;font-family:'Comic Neue',cursive;font-weight:700;box-shadow:inset 2px 2px 0 rgba(0,0,0,.08)}
+.label-block{display:block;text-align:left;margin-bottom:8px;font-size:14px;color:var(--ink);font-family:'Bangers',sans-serif;letter-spacing:1px;text-transform:uppercase}
+.label-block.mt{margin-top:14px}
+.profile-id-card{background:var(--yellow);border:var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;text-align:center;box-shadow:var(--shadow-sm)}
+.profile-id-card .id-label{font-family:'Bangers',sans-serif;font-size:12px;letter-spacing:2px;color:var(--ink);margin-bottom:4px;text-transform:uppercase}
+.profile-id-card .id-value{font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:var(--ink);letter-spacing:1.5px;background:var(--white);border:2px solid var(--ink);border-radius:6px;padding:6px 10px;display:inline-block;margin-bottom:8px;word-break:break-all}
+.profile-id-card .id-copy{background:var(--ink);color:#fff;border:0;padding:6px 14px;border-radius:6px;font-family:'Bangers',sans-serif;letter-spacing:1px;font-size:13px;cursor:pointer}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:600;background:var(--ink);color:#fff;border:var(--border);border-radius:10px;padding:12px 20px;max-width:90vw;display:none;box-shadow:var(--shadow);font-family:'Bangers',sans-serif;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;animation:toastIn .25s cubic-bezier(.34,1.56,.64,1)}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+#toast.warning{background:#856404;border-color:#fff}
+
+@media(max-width:760px){
+  .app{padding:0}
+  .sidebar{height:100vh;border-radius:0;border:0;border-right:0;border-left:0;padding:18px 16px 14px}
+  .main{height:100vh;border:0;border-radius:0}
+  .auth{padding:28px 22px 24px;transform:none}
+  .auth h1{font-size:38px}
+  .brand{font-size:26px}
+  .modal-tabs{overflow-x:auto}
+  .tab-btn{padding:10px 14px;font-size:14px}
+  .ban-card{padding:26px 20px 22px}
+  .ban-card h1{font-size:22px}
+  .topbar{padding:10px 12px;min-height:60px}
+  .topbar-info b{font-size:17px}
+  .topbar-actions{gap:4px}
+  .status{display:none}
+  .composer{padding:10px 12px 12px}
+  .composer textarea{min-height:42px}
+  .composer .send,.filebtn{width:42px;height:42px;min-width:42px;min-height:42px;flex-basis:42px;font-size:20px}
+  .icon-btn{width:38px;height:38px}
+  .menu-dropdown{right:-6px;min-width:220px}
+  .fab-pi{width:54px;height:54px;font-size:30px;bottom:96px;right:14px}
+  .media-box{padding:12px 14px}
+  .media-label{font-size:16px}
+  .media-icon{font-size:22px}
+  .media-close{width:40px;height:40px;font-size:20px;top:12px;right:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<section id="authScreen" class="auth-wrap">
+  <div class="auth">
+    <h1>RANZ<span>CHAT</span></h1>
+    <div class="tag">✦ v10 · Full Page UI ✦</div>
+    <div id="authNotice" class="notice hidden"></div>
+    <form id="authForm">
+      <input id="authUsername" autocomplete="username" placeholder="Username" minlength="3" maxlength="24" required>
+      <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" minlength="8" required>
+      <button id="authSubmit" class="btn" type="submit">Login</button>
+    </form>
+    <button id="switchAuth" class="switch" type="button">Belum punya akun? Daftar</button>
+  </div>
+</section>
+
+<!-- BAN -->
+<section id="banScreen" class="ban-wrap hidden">
+  <div class="ban-card">
+    <span class="ban-icon">🚫</span>
+    <h1>Akun Diblokir Sementara</h1>
+    <p class="ban-subtitle">Sistem AI moderasi RANZCHAT mendeteksi aktivitas melanggar aturan komunitas.</p>
+    <div class="ban-reason-box">
+      <div class="ban-reason-label">⚠ Alasan Pemblokiran</div>
+      <div id="banReasonText" class="ban-reason-text">-</div>
+    </div>
+    <div class="ban-info-box">
+      <p id="banDetailText">-</p>
+      <p>Ajukan <b>tinjau ulang</b> dengan menceritakan kronologi kejadian sebenarnya. AI akan memeriksa semua pesan Anda.</p>
+    </div>
+    <button id="appealStartBtn" class="ban-primary" type="button">Tinjau Ulang</button>
+  </div>
+</section>
+
+<section id="appealFormScreen" class="ban-wrap hidden">
+  <div class="ban-card">
+    <span class="ban-icon">📝</span>
+    <h1>Ajukan Banding</h1>
+    <p class="ban-subtitle">Ceritakan kronologi kejadian secara jujur. AI akan meninjau seluruh pesan Anda.</p>
+    <label class="label-block" for="appealTextarea">Kronologi Kejadian</label>
+    <textarea id="appealTextarea" rows="8" maxlength="2000" placeholder="Ceritakan apa yang sebenarnya terjadi..."></textarea>
+    <small class="muted" style="display:block;text-align:left;margin-bottom:14px">Minimal 40 karakter. Tulis penyebab, pengakuan, dan janji.</small>
+    <div class="ban-actions">
+      <button id="appealBackBtn" class="ban-secondary" type="button">Kembali</button>
+      <button id="appealSubmitBtn" class="ban-primary" type="button">Kirim</button>
+    </div>
+    <div id="appealFormNotice" class="notice hidden" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<section id="appealPendingScreen" class="ban-wrap hidden">
+  <div class="ban-card">
+    <div class="ban-icon-spinner"><div class="spinner"></div></div>
+    <h1>Sedang Ditinjau</h1>
+    <p class="ban-subtitle">Banding Anda sedang diperiksa oleh AI moderasi & support RANZCHAT.</p>
+    <div class="ban-info-box">
+      <p>Biasanya <b>maksimal 24 jam</b>. Namun AI dapat memutuskan <b>lebih cepat</b>.</p>
+      <p>AI akan memeriksa <b>semua pesan terakhir</b> Anda. Halaman ini otomatis beralih.</p>
+    </div>
+    <button id="appealPendingBtn" class="ban-primary" type="button" disabled>⏳ Sedang Ditinjau...</button>
+  </div>
+</section>
+
+<section id="appealApprovedScreen" class="ban-wrap hidden">
+  <div class="ban-card">
+    <div class="ban-icon-success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <h1 class="success-title">Selamat!</h1>
+    <p class="ban-subtitle" style="font-size:15px">Akun Anda telah terverifikasi tidak bersalah.</p>
+    <div id="approvalReason" class="ban-info-box success-box"><p>-</p></div>
+    <button id="appealLoginBtn" class="ban-primary success-btn" type="button">Login Ulang</button>
+  </div>
+</section>
+
+<section id="appealRejectedScreen" class="ban-wrap hidden">
+  <div class="ban-card">
+    <span class="ban-icon-error">⚠️</span>
+    <h1>Banding Ditolak</h1>
+    <p class="ban-subtitle">AI memutuskan banding belum cukup kuat berdasarkan pemeriksaan pesan.</p>
+    <div id="rejectionReason" class="ban-info-box error-box"><p>-</p></div>
+    <button id="appealRetryBtn" class="ban-primary" type="button">Ajukan Banding Baru</button>
+  </div>
+</section>
+
+<!-- MAIN APP -->
+<div id="app" class="app hidden">
+  <!-- HALAMAN KONTAK -->
+  <aside class="sidebar">
+    <h1 class="brand">RANZ<span>CHAT</span></h1>
+    <div class="me">
+      <div class="me-row">
+        <div id="myAvatar" class="avatar">R</div>
+        <div class="user-meta">
+          <b id="myName">User</b>
+          <small id="myId">ID: -</small>
+        </div>
+        <button id="copyMyId" class="copy" type="button">Salin</button>
+      </div>
+    </div>
+    <div class="row search">
+      <input id="searchInput" placeholder="Cari username atau ID...">
+      <button id="clearSearch" class="btn ghost" type="button" style="padding:10px 14px;font-size:18px">×</button>
+    </div>
+    <span class="label-comic">Kontak</span>
+    <div id="contactList" class="list"></div>
+  </aside>
+
+  <!-- HALAMAN CHAT (Menggantikan layar penuh saat aktif) -->
+  <main class="main panel">
+    <header class="topbar">
+      <div id="chatAvatar" class="avatar">?</div>
+      <div class="topbar-info">
+        <b id="chatName">Pilih pengguna</b>
+        <small id="chatId">Pilih kontak untuk mulai chat</small>
+      </div>
+      <span id="connectionStatus" class="status offline">offline</span>
+      <div class="topbar-actions">
+        <button id="chatCloseBtn" class="icon-btn close-x" title="Tutup chat" type="button">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+        <button id="menuBtn" class="icon-btn" title="Menu" type="button">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="12" cy="5" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="19" r="2.2"/></svg>
+        </button>
+        <div id="menuDropdown" class="menu-dropdown hidden">
+          <div class="menu-header">
+            <div class="mh-name" id="menuName">User</div>
+            <div class="mh-id" id="menuId">ID: -</div>
+          </div>
+          <button id="menuProfileBtn" class="menu-item" type="button"><span class="mi-icon">👤</span> Profil Saya</button>
+          <button id="menuNotifBtn" class="menu-item" type="button"><span class="mi-icon">🔔</span> Notifikasi <span id="menuNotifBadge" class="mi-badge">0</span></button>
+          <button id="menuSettingsBtn" class="menu-item" type="button"><span class="mi-icon">⚙️</span> Pengaturan</button>
+          <button id="menuAboutBtn" class="menu-item" type="button"><span class="mi-icon">ℹ️</span> Tentang Aplikasi</button>
+          <button id="menuDevBtn" class="menu-item hidden" type="button"><span class="mi-icon">⚡</span> Menu Developer</button>
+          <div class="menu-sep"></div>
+          <button id="menuLogoutBtn" class="menu-item danger-item" type="button"><span class="mi-icon">🚪</span> Keluar</button>
+        </div>
+      </div>
+    </header>
+
+    <div id="chatActionBar" class="chat-action-bar hidden">
+      <button id="actionDeleteBtn" class="action-icon" title="Hapus pesan" type="button">🗑️</button>
+      <div id="actionInfo" class="action-info">Pilih aksi</div>
+      <button id="actionReportBtn" class="action-icon" title="Laporkan pesan" type="button">®</button>
+    </div>
+
+    <section id="chatPanel" class="content">
+      <div id="messages" class="messages"></div>
+      <div id="typingRow" class="typing-row hidden">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </section>
+
+    <form id="composer" class="composer">
+      <label class="filebtn" title="Kirim foto atau video">
+        +
+        <input id="imageInput" type="file" accept="image/*,video/*" hidden>
+      </label>
+      <textarea id="messageInput" rows="1" maxlength="4000" placeholder="Ketik pesan..."></textarea>
+      <button id="sendButton" class="send" type="submit" title="Kirim">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </form>
+  </main>
+</div>
+
+<button id="fabPi" class="fab-pi hidden" title="Tambah Kontak">π</button>
+
+<div id="addContactModal" class="modal hidden">
+  <div class="modal-content small">
+    <div class="modal-header"><h2>📇 Tambah Kontak</h2><button id="addContactCloseBtn" class="modal-close" type="button">×</button></div>
+    <div class="modal-body">
+      <label class="label-block">ID Kontak</label>
+      <input id="addContactId" placeholder="RzXXXXXXXXXXXX" autocomplete="off">
+      <small class="muted" style="display:block;margin-top:4px">Minta ID dari temanmu. Format: <b>Rz</b> + 12 karakter</small>
+      <label class="label-block mt">Nama Depan</label>
+      <input id="addFirstName" maxlength="40" placeholder="Budi">
+      <label class="label-block mt">Nama Belakang</label>
+      <input id="addLastName" maxlength="40" placeholder="Santoso">
+      <div id="addContactNotice" class="notice hidden" style="margin-top:12px"></div>
+      <button id="addContactSaveBtn" class="btn green" style="width:100%;margin-top:16px">💾 Simpan Kontak</button>
+    </div>
+  </div>
+</div>
+
+<div id="userProfileModal" class="modal hidden">
+  <div class="modal-content small">
+    <div class="modal-header"><h2>Profil Pengguna</h2><button id="userProfileCloseBtn" class="modal-close" type="button">×</button></div>
+    <div class="modal-body">
+      <div style="text-align:center;padding:10px 0 20px">
+        <div id="userProfileAvatar" class="avatar" style="width:88px;height:88px;font-size:36px;margin:0 auto 12px"></div>
+        <div id="userProfileName" style="font-family:'Bangers',sans-serif;font-size:24px;letter-spacing:1px"></div>
+        <div id="userProfileId" style="color:#555;font-weight:700;font-size:13px;margin-top:4px;font-family:'Courier New',monospace"></div>
+        <div id="userProfileBio" style="color:#666;font-weight:700;font-size:13px;margin-top:8px;font-style:italic"></div>
+        <div id="userProfileStatus" style="margin-top:10px"></div>
+      </div>
+      <button id="userProfileAddBtn" class="btn green hidden" style="width:100%;margin-bottom:10px">📇 Tambah Kontak</button>
+      <button id="userProfileBlockBtn" class="btn red" style="width:100%">🚫 Blokir Pengguna</button>
+    </div>
+  </div>
+</div>
+
+<div id="mediaViewerModal" class="media-viewer hidden">
+  <button id="mediaViewerCloseBtn" class="media-close" type="button">×</button>
+  <div id="mediaViewerContent" class="media-content"></div>
+  <div id="mediaCaption" class="media-caption"></div>
+</div>
+
+<div id="devPanel" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header"><h2>⚡ Menu Developer</h2><button id="devCloseBtn" class="modal-close" type="button">×</button></div>
+    <div class="modal-tabs">
+      <button class="tab-btn active" data-tab="users" type="button">Pengguna</button>
+      <button class="tab-btn" data-tab="appeals" type="button">Banding</button>
+      <button class="tab-btn" data-tab="reports" type="button">Laporan</button>
+      <button class="tab-btn" data-tab="logs" type="button">Log</button>
+    </div>
+    <div class="modal-body">
+      <div id="devUsersTab" class="tab-content active"><input id="devSearch" placeholder="Cari user..." style="margin-bottom:12px"><div id="devUsersList"></div></div>
+      <div id="devAppealsTab" class="tab-content"><div id="devAppealsList"></div></div>
+      <div id="devReportsTab" class="tab-content"><div id="devReportsList"></div></div>
+      <div id="devLogsTab" class="tab-content"><div id="devLogsList"></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="profileModal" class="modal hidden">
+  <div class="modal-content small">
+    <div class="modal-header"><h2>Profil Saya</h2><button id="profileCloseBtn" class="modal-close" type="button">×</button></div>
+    <div class="modal-body">
+      <div class="profile-id-card">
+        <div class="id-label">ID Anda (bagikan ke teman)</div>
+        <div id="profileMyIdValue" class="id-value">-</div>
+        <div><button id="profileCopyIdBtn" class="id-copy">📋 Salin ID</button></div>
+      </div>
+      <label class="label-block">Username</label>
+      <input id="profileUsername" maxlength="24" style="margin-bottom:14px">
+      <label class="label-block">Bio</label>
+      <textarea id="profileBio" rows="3" maxlength="160" style="margin-bottom:14px"></textarea>
+      <div id="profileNotice" class="notice hidden"></div>
+      <button id="profileSaveBtn" class="btn green" style="width:100%;margin-top:8px">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div id="settingsModal" class="modal hidden">
+  <div class="modal-content small">
+    <div class="modal-header"><h2>⚙️ Pengaturan</h2><button id="settingsCloseBtn" class="modal-close" type="button">×</button></div>
+    <div class="modal-body">
+      <div class="notice" style="margin-top:0"><b>Preferensi</b></div>
+      <label class="label-block" style="display:flex;align-items:center;gap:10px;text-transform:none;font-family:'Comic Neue',cursive;margin-bottom:12px">
+        <input type="checkbox" id="optSound" checked style="width:20px;height:20px;flex:0 0 20px"> Suara notifikasi
+      </label>
+      <label class="label-block" style="display:flex;align-items:center;gap:10px;text-transform:none;font-family:'Comic Neue',cursive;margin-bottom:12px">
+        <input type="checkbox" id="optDesktop" style="width:20px;height:20px;flex:0 0 20px"> Notifikasi desktop
+      </label>
+      <button id="clearCacheBtn" class="btn red" style="width:100%;margin-top:10px">Bersihkan Cache</button>
+    </div>
+  </div>
+</div>
+
+<div id="aboutModal" class="modal hidden">
+  <div class="modal-content small">
+    <div class="modal-header"><h2>ℹ️ Tentang</h2><button id="aboutCloseBtn" class="modal-close" type="button">×</button></div>
+    <div class="modal-body">
+      <div style="text-align:center;padding:10px 0 18px">
+        <div class="brand" style="font-size:42px;margin-bottom:4px">RANZ<span style="color:var(--red)">CHAT</span></div>
+        <div style="font-family:'Permanent Marker',cursive;color:#555;font-size:13px">✦ v10 — Full Page UI ✦</div>
+      </div>
+      <div class="notice">
+        <p style="margin:0 0 6px"><b>Versi:</b> 10.0.0</p>
+        <p style="margin:0 0 6px"><b>AI:</b> Mistral + Regex fallback</p>
+        <p style="margin:0 0 6px"><b>Auto-ban:</b> 6 flag / instant judol-toxic</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="notifModal" class="modal hidden">
+  <div class="modal-content small">
+    <div class="modal-header"><h2>🔔 Notifikasi</h2><button id="notifCloseBtn" class="modal-close" type="button">×</button></div>
+    <div class="modal-body"><div id="notifList"></div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+
+let me = null, activeUser = null, contacts = [];
+let isRegister = false, ws = null, reconnectTimer = null, reconnectDelay = 1000;
+let seenMessageIds = new Set(), searchTimer = null, requestGeneration = 0;
+let banState = { token: null, appeal: null }, pollTimer = null, devUsersCache = [];
+let isTypingSent = false, typingTimer = null, typingIndicatorTimeout = null, heartbeatTimer = null;
+let longPressTimer = null, selectedMessage = null;
+let mePollerTimer = null;
+
+/* HELPERS */
+function toast(msg, type) {
+  const el = $("toast");
+  el.textContent = msg;
+  el.className = type === "warning" ? "warning" : "";
+  el.style.display = "block";
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => el.style.display = "none", 4000);
+}
+function showNotice(el, msg, error = false) {
+  el.textContent = msg;
+  el.classList.remove("hidden", "error", "success");
+  el.classList.add(error ? "error" : "success");
+}
+function clearNotice(el) { el.classList.add("hidden"); el.textContent = ""; }
+function hideAllScreens() {
+  ["authScreen", "app", "banScreen", "appealFormScreen", "appealPendingScreen", "appealApprovedScreen", "appealRejectedScreen"].forEach(id => {
+    const el = $(id);
+    if (el) el.classList.add("hidden");
+  });
+}
+function showScreen(id) { hideAllScreens(); $(id).classList.remove("hidden"); }
+function setAvatar(el, user) {
+  el.replaceChildren();
+  if (user && user.avatar) {
+    const img = document.createElement("img");
+    img.src = user.avatar; img.alt = "";
+    el.appendChild(img);
+  } else {
+    const name = user && (user.firstName || user.username || "U");
+    el.textContent = name[0].toUpperCase();
+  }
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c])); }
+function displayName(user) {
+  if (!user) return "";
+  if (user.saved && user.firstName) return [user.firstName, user.lastName].filter(Boolean).join(" ");
+  if (!user.username) return "ID: " + user.id;
+  return user.username + (user.verified ? " ✓" : "");
+}
+
+async function api(url, options = {}) {
+  const opts = { ...options, credentials: "same-origin" };
+  opts.headers = { ...(options.headers || {}) };
+  if (options.body && typeof options.body !== "string") {
+    opts.headers["Content-Type"] = "application/json";
+    opts.body = JSON.stringify(options.body);
+  }
+  const res = await fetch(url, opts);
+  const text = await res.text();
+  let data = {};
+  try { data = text ? JSON.parse(text) : {}; } catch { throw new Error("Respons tidak valid"); }
+  if (!res.ok) {
+    const err = new Error(data.error || `Request gagal (${res.status})`);
+    err.payload = data;
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+/* AUTH */
+$("switchAuth").addEventListener("click", () => {
+  isRegister = !isRegister;
+  $("authSubmit").textContent = isRegister ? "Daftar" : "Login";
+  $("switchAuth").textContent = isRegister ? "Sudah punya akun? Login" : "Belum punya akun? Daftar";
+  $("authPassword").autocomplete = isRegister ? "new-password" : "current-password";
+  clearNotice($("authNotice"));
+});
+
+$("authForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const username = $("authUsername").value.trim();
+  const password = $("authPassword").value;
+  $("authSubmit").disabled = true;
+  $("authSubmit").textContent = "Memproses...";
+  try {
+    const data = await api(isRegister ? "/api/register" : "/api/login", {
+      method: "POST", body: { username, password }
+    });
+    setLoggedIn(data.user);
+    toast(isRegister ? "Akun dibuat!" : "Login sukses!");
+  } catch (err) {
+    const p = err.payload || {};
+    if (p.tempBanned) {
+      banState.token = p.banToken;
+      banState.appeal = p.appeal || null;
+      showBanOrAppeal({ reason: p.reason || p.error, until: p.until, strike: p.strike, appeal: p.appeal });
+      return;
+    }
+    if (p.permanentBan) { showPermanentBan(p.error); return; }
+    showNotice($("authNotice"), err.message, true);
+  } finally {
+    $("authSubmit").disabled = false;
+    $("authSubmit").textContent = isRegister ? "Daftar" : "Login";
+  }
+});
+
+/* BAN FLOW */
+function formatDuration(ms) {
+  if (ms <= 0) return "0 menit";
+  const m = Math.round(ms / 60000);
+  if (m < 60) return m + " menit";
+  const h = Math.floor(m / 60), rm = m % 60;
+  return h + " jam" + (rm ? " " + rm + " menit" : "");
+}
+function showPermanentBan(reason) {
+  $("banReasonText").textContent = reason || "Akun diblokir permanen oleh developer.";
+  $("banDetailText").textContent = "Akun diblokir permanen dan tidak dapat dipulihkan. Hubungi developer RANZCHAT.";
+  $("appealStartBtn").classList.add("hidden");
+  showScreen("banScreen");
+}
+function showBanOrAppeal(data) {
+  const appeal = data.appeal;
+  if (appeal) {
+    if (appeal.status === "pending") { showScreen("appealPendingScreen"); startPolling(); return; }
+    if (appeal.status === "approved") { showApprovedScreen(appeal); return; }
+    if (appeal.status === "rejected") { showRejectedScreen(appeal); return; }
+  }
+  $("banReasonText").textContent = data.reason || "Tidak diketahui.";
+  const remain = data.until ? Math.max(0, data.until - Date.now()) : 0;
+  $("banDetailText").innerHTML =
+    `<b>Durasi tersisa:</b> ${formatDuration(remain)}<br>` +
+    `<b>Strike:</b> ke-${data.strike || 1}<br>` +
+    `Ajukan tinjau ulang agar AI memeriksa semua pesan Anda.`;
+  $("appealStartBtn").classList.remove("hidden");
+  showScreen("banScreen");
+}
+
+$("appealStartBtn").addEventListener("click", () => {
+  $("appealTextarea").value = "";
+  clearNotice($("appealFormNotice"));
+  showScreen("appealFormScreen");
+  $("appealTextarea").focus();
+});
+$("appealBackBtn").addEventListener("click", () => showScreen("banScreen"));
+$("appealSubmitBtn").addEventListener("click", async () => {
+  const text = $("appealTextarea").value.trim();
+  if (text.length < 40) return showNotice($("appealFormNotice"), "Kronologi minimal 40 karakter.", true);
+  if (!banState.token) return showNotice($("appealFormNotice"), "Sesi ban tidak valid. Login ulang.", true);
+  $("appealSubmitBtn").disabled = true;
+  $("appealSubmitBtn").textContent = "Mengirim...";
+  try {
+    const data = await api("/api/appeal", { method: "POST", body: { banToken: banState.token, chronology: text } });
+    banState.appeal = data.appeal;
+    showScreen("appealPendingScreen");
+    startPolling();
+  } catch (err) {
+    const p = err.payload || {};
+    if (p.appeal) { banState.appeal = p.appeal; showScreen("appealPendingScreen"); startPolling(); }
+    else showNotice($("appealFormNotice"), err.message, true);
+  } finally {
+    $("appealSubmitBtn").disabled = false;
+    $("appealSubmitBtn").textContent = "Kirim";
+  }
+});
+
+function showApprovedScreen(appeal) {
+  const reason = (appeal && appeal.aiReason) || "Banding disetujui oleh AI.";
+  $("approvalReason").innerHTML = "<p><b>Keputusan AI:</b></p><p>" + escapeHtml(reason) + "</p>";
+  showScreen("appealApprovedScreen");
+}
+function showRejectedScreen(appeal) {
+  const reason = (appeal && appeal.aiReason) || "Banding ditolak.";
+  $("rejectionReason").innerHTML = "<p><b>Alasan penolakan:</b></p><p>" + escapeHtml(reason) + "</p>";
+  showScreen("appealRejectedScreen");
+}
+
+$("appealRetryBtn").addEventListener("click", async () => {
+  try {
+    const data = await api("/api/ban/check?token=" + encodeURIComponent(banState.token));
+    if (!data.banned) { toast("Tidak diblokir lagi."); resetToLogin(); return; }
+    banState.appeal = data.appeal;
+    $("appealTextarea").value = "";
+    clearNotice($("appealFormNotice"));
+    showScreen("appealFormScreen");
+  } catch { resetToLogin(); }
+});
+$("appealLoginBtn").addEventListener("click", () => resetToLogin());
+
+function resetToLogin() {
+  stopPolling();
+  banState = { token: null, appeal: null };
+  $("authPassword").value = "";
+  clearNotice($("authNotice"));
+  showScreen("authScreen");
+}
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(async () => {
+    if (!banState.token) { stopPolling(); return; }
+    try {
+      const data = await api("/api/appeal/status?token=" + encodeURIComponent(banState.token));
+      const appeal = data.appeal;
+      if (!appeal) return;
+      if (appeal.status === "approved") { stopPolling(); showApprovedScreen(appeal); }
+      else if (appeal.status === "rejected") { stopPolling(); showRejectedScreen(appeal); }
+      else if (appeal.status === "expired") { stopPolling(); toast("Pemblokiran berakhir."); resetToLogin(); }
+      else if (!data.banned) { stopPolling(); toast("Tidak diblokir lagi."); resetToLogin(); }
+    } catch (err) {
+      if (err.status === 401) { stopPolling(); resetToLogin(); }
+    }
+  }, 3000);
+}
+function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+
+/* LOGGED IN */
+function setLoggedIn(user) {
+  me = user;
+  $("myName").textContent = user.username + (user.verified ? " ✓" : "");
+  $("myId").textContent = "ID: " + user.id;
+  setAvatar($("myAvatar"), user);
+  $("menuName").textContent = user.username + (user.verified ? " ✓" : "");
+  $("menuId").textContent = "ID: " + user.id;
+  $("menuDevBtn").classList.toggle("hidden", user.role !== "developer");
+  showScreen("app");
+  updateUIMode();
+  loadContacts();
+  connectSocket();
+  startMePoller();
+}
+
+function updateUIMode() {
+  const inChat = Boolean(activeUser);
+  const appContainer = $("app");
+  
+  if (inChat) {
+    appContainer.classList.add("in-chat");
+  } else {
+    appContainer.classList.remove("in-chat");
+  }
+  
+  // Sembunyikan FAB π saat di halaman chat
+  $("fabPi").classList.toggle("hidden", !me || inChat);
+  
+  if (!inChat) {
+    $("typingRow").classList.add("hidden");
+    deselectMessage();
+  }
+}
+
+function showLoggedOut() {
+  me = null;
+  activeUser = null;
+  if (ws) { ws.onclose = null; ws.close(); ws = null; }
+  clearTimeout(reconnectTimer);
+  clearInterval(heartbeatTimer);
+  clearInterval(mePollerTimer);
+  mePollerTimer = null;
+  deselectMessage();
+  $("menuDropdown").classList.add("hidden");
+  $("fabPi").classList.add("hidden");
+  stopPolling();
+  banState = { token: null, appeal: null };
+  $("authPassword").value = "";
+  clearNotice($("authNotice"));
+  showScreen("authScreen");
+}
+
+function startMePoller() {
+  clearInterval(mePollerTimer);
+  mePollerTimer = setInterval(async () => {
+    if (!me || !me.id) return;
+    try {
+      await api("/api/me");
+    } catch (err) {
+      if (err.status === 401) {
+        toast("Sesi berakhir. Login ulang untuk cek status.", "warning");
+        showLoggedOut();
+      }
+    }
+  }, 30000);
+}
+
+/* CONTACTS */
+async function loadContacts() {
+  try {
+    const data = await api("/api/contacts");
+    contacts = data.contacts || [];
+    renderContacts(contacts);
+    updateNotifBadge();
+  } catch (err) {
+    if (err.status === 401) showLoggedOut();
+    else toast(err.message);
+  }
+}
+function updateNotifBadge() {
+  const total = contacts.reduce((sum, c) => sum + (c.unread || 0), 0);
+  const b = $("menuNotifBadge");
+  if (total > 0) { b.textContent = total > 99 ? "99+" : total; b.style.display = "inline-block"; }
+  else { b.style.display = "none"; }
+}
+function renderContacts(users) {
+  const list = $("contactList");
+  list.replaceChildren();
+  if (!users.length) {
+    const e = document.createElement("div");
+    e.className = "notice";
+    e.innerHTML = "Belum ada kontak. Tekan <b>π</b> untuk menambah kontak baru.";
+    list.appendChild(e);
+    return;
+  }
+  for (const user of users) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "contact" + (activeUser && activeUser.id === user.id ? " active" : "");
+
+    const av = document.createElement("div");
+    av.className = "avatar";
+    setAvatar(av, user);
+
+    const meta = document.createElement("div");
+    meta.className = "user-meta";
+    const name = document.createElement("b");
+    name.textContent = user.saved ? displayName(user) : "ID: " + user.id;
+    const sub = document.createElement("small");
+    if (user.lastMessage) {
+      const lm = user.lastMessage;
+      sub.textContent = lm.type === "text" ? (lm.content || "").slice(0, 30) : (lm.type === "video" ? "🎬 Video" : "📷 Foto");
+    } else {
+      sub.textContent = user.saved ? "ID: " + user.id : "User tak dikenal";
+    }
+    meta.append(name, sub);
+    btn.append(av, meta);
+
+    if (!user.saved) {
+      const tag = document.createElement("span");
+      tag.className = "search-tag";
+      tag.textContent = "UNKNOWN";
+      btn.appendChild(tag);
+    }
+    if (user.unread && user.unread > 0) {
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = user.unread > 99 ? "99+" : user.unread;
+      btn.appendChild(badge);
+    }
+    btn.addEventListener("click", () => openChat(user));
+    list.appendChild(btn);
+  }
+}
+
+async function copyText(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+    else {
+      const a = document.createElement("textarea");
+      a.value = text;
+      a.style.position = "fixed";
+      a.style.opacity = "0";
+      document.body.appendChild(a);
+      a.select();
+      if (!document.execCommand("copy")) throw new Error();
+      a.remove();
+    }
+    toast("ID disalin!");
+  } catch { prompt("Salin ID:", text); }
+}
+$("copyMyId").addEventListener("click", () => { if (me) copyText(me.id); });
+
+$("searchInput").addEventListener("input", () => {
+  clearTimeout(searchTimer);
+  const q = $("searchInput").value.trim();
+  if (!q) { renderContacts(contacts); return; }
+  searchTimer = setTimeout(async () => {
+    try {
+      const data = await api("/api/users/search?q=" + encodeURIComponent(q));
+      renderContacts(data.users || []);
+    } catch (err) { toast(err.message); }
+  }, 250);
+});
+$("clearSearch").addEventListener("click", () => {
+  $("searchInput").value = "";
+  renderContacts(contacts);
+});
+
+/* CHAT LOGIC */
+async function openChat(user) {
+  if (activeUser && ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: "typing", to: activeUser.id, typing: false }));
+  }
+  clearTimeout(typingTimer);
+  isTypingSent = false;
+  activeUser = user;
+  seenMessageIds = new Set();
+  $("chatName").textContent = user.saved ? displayName(user) : "ID: " + user.id;
+  $("chatId").textContent = user.saved
+    ? "ID: " + user.id + (user.online ? " · online" : "")
+    : (user.online ? "User tak dikenal · online" : "User tak dikenal");
+  setAvatar($("chatAvatar"), user);
+  $("messages").replaceChildren();
+  $("typingRow").classList.add("hidden");
+  deselectMessage();
+  
+  updateUIMode(); // Berpindah layar
+
+  const gen = ++requestGeneration;
+  try {
+    const data = await api("/api/messages?userId=" + encodeURIComponent(user.id));
+    if (gen !== requestGeneration || !activeUser || activeUser.id !== user.id) return;
+    for (const m of (data.messages || [])) addMessage(m);
+    scrollMessages();
+    loadContacts();
+  } catch (err) {
+    if (err.status === 401) showLoggedOut();
+    else toast(err.message);
+  }
+  $("messageInput").focus();
+}
+
+function closeChat() {
+  if (activeUser && ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: "typing", to: activeUser.id, typing: false }));
+  }
+  clearTimeout(typingTimer);
+  isTypingSent = false;
+  activeUser = null;
+  deselectMessage();
+  
+  updateUIMode(); // Kembali ke kontak
+  
+  $("chatName").textContent = "Pilih pengguna";
+  $("chatId").textContent = "Pilih kontak untuk mulai chat";
+  setAvatar($("chatAvatar"), null);
+  $("chatAvatar").textContent = "?";
+  $("messages").replaceChildren();
+  renderContacts(contacts);
+}
+$("chatCloseBtn").addEventListener("click", closeChat);
+
+function renderTick(status) {
+  const single = `<svg viewBox="0 0 12 11" width="14" height="12"><path d="M10.5 1L3.5 8.5L1 6" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const double = `<svg viewBox="0 0 18 11" width="20" height="12"><path d="M11 1L4 8.5L1.5 6" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 1L9.5 8.5L8 7" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  if (status === "sent") return `<span class="msg-ticks">${single}</span>`;
+  if (status === "delivered") return `<span class="msg-ticks">${double}</span>`;
+  if (status === "read") return `<span class="msg-ticks read">${double}</span>`;
+  return "";
+}
+
+function addMessage(message) {
+  if (!message || !message.id || seenMessageIds.has(message.id)) return;
+  seenMessageIds.add(message.id);
+  if (!activeUser) return;
+  const isFromMe = message.fromId === me.id;
+  const isToMe = message.toId === me.id;
+  const isFromActive = message.fromId === activeUser.id;
+  const isToActive = message.toId === activeUser.id;
+  if (!((isFromMe && isToActive) || (isFromActive && isToMe))) return;
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble " + (isFromMe ? "mine" : "theirs");
+  bubble.dataset.messageId = message.id;
+
+  if (message.type === "image" || message.type === "video") {
+    const isVideo = message.type === "video";
+    const mediaBox = document.createElement("div");
+    mediaBox.className = "media-box";
+    const icon = document.createElement("div");
+    icon.className = "media-icon";
+    icon.textContent = isVideo ? "🎬" : "📷";
+    const label = document.createElement("div");
+    label.className = "media-label";
+    label.textContent = isVideo ? "VIDEO" : "FOTO";
+    mediaBox.append(icon, label);
+    mediaBox.addEventListener("click", ev => { ev.stopPropagation(); openMediaViewer(message); });
+    bubble.appendChild(mediaBox);
+  } else {
+    const div = document.createElement("div");
+    div.textContent = message.content || "";
+    bubble.appendChild(div);
+  }
+
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  const time = document.createElement("span");
+  time.textContent = new Date(message.createdAt || Date.now()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  meta.appendChild(time);
+  if (isFromMe) {
+    const ticks = document.createElement("span");
+    ticks.className = "msg-ticks-wrap";
+    ticks.innerHTML = renderTick(message.status || "sent");
+    meta.appendChild(ticks);
+  }
+  bubble.appendChild(meta);
+
+  const startLP = () => {
+    clearTimeout(longPressTimer);
+    longPressTimer = setTimeout(() => selectMessage(message), 500);
+  };
+  const cancelLP = () => clearTimeout(longPressTimer);
+  bubble.addEventListener("touchstart", startLP, { passive: true });
+  bubble.addEventListener("touchend", cancelLP);
+  bubble.addEventListener("touchmove", cancelLP);
+  bubble.addEventListener("touchcancel", cancelLP);
+  bubble.addEventListener("mousedown", startLP);
+  bubble.addEventListener("mouseup", cancelLP);
+  bubble.addEventListener("mouseleave", cancelLP);
+  bubble.addEventListener("contextmenu", ev => {
+    ev.preventDefault();
+    clearTimeout(longPressTimer);
+    selectMessage(message);
+  });
+
+  $("messages").appendChild(bubble);
+  scrollMessages();
+}
+
+function openMediaViewer(message) {
+  const content = $("mediaViewerContent");
+  content.replaceChildren();
+  const caption = $("mediaCaption");
+  if (message.type === "image") {
+    const img = document.createElement("img");
+    img.src = message.content;
+    img.alt = "Foto";
+    content.appendChild(img);
+    caption.textContent = "📷 FOTO";
+  } else if (message.type === "video") {
+    const video = document.createElement("video");
+    video.src = message.content;
+    video.controls = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    content.appendChild(video);
+    caption.textContent = "🎬 VIDEO";
+  }
+  $("mediaViewerModal").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+function closeMediaViewer() {
+  $("mediaViewerModal").classList.add("hidden");
+  const content = $("mediaViewerContent");
+  content.querySelectorAll("video").forEach(v => v.pause());
+  content.replaceChildren();
+  document.body.style.overflow = "";
+}
+$("mediaViewerCloseBtn").addEventListener("click", closeMediaViewer);
+$("mediaViewerModal").addEventListener("click", e => {
+  if (e.target === $("mediaViewerModal") || e.target === $("mediaViewerContent")) closeMediaViewer();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("mediaViewerModal").classList.contains("hidden")) closeMediaViewer();
+});
+
+function updateMessageStatus(messageId, status) {
+  const bubble = $("messages").querySelector(`[data-message-id="${CSS.escape(messageId)}"]`);
+  if (!bubble) return;
+  const t = bubble.querySelector(".msg-ticks-wrap");
+  if (t) t.innerHTML = renderTick(status);
+}
+function removeMessageBubble(messageId) {
+  const b = $("messages").querySelector(`[data-message-id="${CSS.escape(messageId)}"]`);
+  if (b) b.remove();
+}
+function scrollMessages() {
+  const cp = $("chatPanel");
+  if (cp) cp.scrollTop = cp.scrollHeight;
+}
+
+/* LONG PRESS ACTION */
+function selectMessage(message) {
+  selectedMessage = message;
+  document.querySelectorAll(".bubble.selected").forEach(b => b.classList.remove("selected"));
+  const bubble = $("messages").querySelector(`[data-message-id="${CSS.escape(message.id)}"]`);
+  if (bubble) bubble.classList.add("selected");
+  const isMine = message.fromId === me.id;
+  $("actionDeleteBtn").classList.toggle("disabled", !isMine && me.role !== "developer");
+  $("actionReportBtn").classList.toggle("disabled", isMine);
+  $("actionInfo").textContent = isMine ? "Pesan Anda" : "Pesan dari " + (activeUser ? (activeUser.saved ? displayName(activeUser) : "ID: " + activeUser.id) : "");
+  $("chatActionBar").classList.remove("hidden");
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+function deselectMessage() {
+  selectedMessage = null;
+  document.querySelectorAll(".bubble.selected").forEach(b => b.classList.remove("selected"));
+  $("chatActionBar").classList.add("hidden");
+}
+$("actionDeleteBtn").addEventListener("click", async () => {
+  if (!selectedMessage) return;
+  if (selectedMessage.fromId !== me.id && me.role !== "developer") return;
+  if (!confirm("Hapus pesan ini untuk semua orang?")) return;
+  try {
+    await api("/api/messages/delete", { method: "POST", body: { messageId: selectedMessage.id } });
+    removeMessageBubble(selectedMessage.id);
+    deselectMessage();
+    toast("Pesan dihapus!");
+  } catch (err) { toast(err.message); }
+});
+$("actionReportBtn").addEventListener("click", async () => {
+  if (!selectedMessage) return;
+  if (selectedMessage.fromId === me.id) return;
+  const isMedia = selectedMessage.type === "image" || selectedMessage.type === "video";
+  const hint = isMedia ? "(media butuh 15 laporan)" : "(teks butuh 12 laporan)";
+  const reason = prompt(`Alasan laporan ${hint}:\nContoh: judi online, pornografi, spam, SARA`, "Judi online / pornografi");
+  if (!reason) return;
+  try {
+    const data = await api("/api/messages/report", { method: "POST", body: { messageId: selectedMessage.id, reason } });
+    deselectMessage();
+    toast(data.message || "Laporan terkirim!");
+  } catch (err) { toast(err.message); }
+});
+
+/* SEND */
+$("composer").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!me) return toast("Login dulu.");
+  if (!activeUser) return toast("Pilih kontak dulu.");
+  const input = $("messageInput");
+  const content = input.value.trim();
+  if (!content) { input.focus(); return; }
+  const button = $("sendButton");
+  button.disabled = true;
+  if (isTypingSent && ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: "typing", to: activeUser.id, typing: false }));
+    isTypingSent = false;
+  }
+  clearTimeout(typingTimer);
+  try {
+    const result = await api("/api/messages", {
+      method: "POST",
+      body: { userId: activeUser.id, type: "text", content }
+    });
+    input.value = "";
+    addMessage(result.message);
+    input.focus();
+    loadContacts();
+  } catch (err) {
+    if (err.status === 401) { toast("Sesi berakhir. Login ulang.", "warning"); showLoggedOut(); return; }
+    if (err.payload && err.payload.tempBanned) {
+      toast("Akun diblokir sementara. Login ulang untuk cek status.", "warning");
+      showLoggedOut();
+      return;
+    }
+    toast(err.message);
+  } finally { button.disabled = false; }
+});
+
+$("messageInput").addEventListener("input", () => {
+  if (!me || !activeUser || !ws || ws.readyState !== WebSocket.OPEN) return;
+  if (!isTypingSent) {
+    ws.send(JSON.stringify({ type: "typing", to: activeUser.id, typing: true }));
+    isTypingSent = true;
+  }
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(() => {
+    if (isTypingSent && ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: "typing", to: activeUser.id, typing: false }));
+      isTypingSent = false;
+    }
+  }, 2500);
+});
+$("messageInput").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+    e.preventDefault();
+    $("composer").requestSubmit();
+  }
+});
+
+/* + BUTTON (MEDIA) */
+$("imageInput").addEventListener("change", async e => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!file || !activeUser) return;
+  const isImage = file.type.startsWith("image/");
+  const isVideo = file.type.startsWith("video/");
+  if (!isImage && !isVideo) return toast("Pilih foto atau video.");
+  const maxSize = isVideo ? 7 * 1024 * 1024 : 4 * 1024 * 1024;
+  if (file.size > maxSize) return toast(`${isVideo ? "Video" : "Foto"} maks ${maxSize / 1024 / 1024} MB.`);
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const result = await api("/api/messages", {
+        method: "POST",
+        body: { userId: activeUser.id, type: isVideo ? "video" : "image", content: reader.result }
+      });
+      addMessage(result.message);
+      loadContacts();
+      toast(isVideo ? "Video terkirim!" : "Foto terkirim!");
+    } catch (err) {
+      if (err.status === 401) { showLoggedOut(); return; }
+      toast(err.message);
+    }
+  };
+  reader.onerror = () => toast("Gagal baca file.");
+  reader.readAsDataURL(file);
+});
+
+/* TYPING */
+function showTypingIndicator(show) {
+  const row = $("typingRow");
+  if (show) {
+    row.classList.remove("hidden");
+    scrollMessages();
+    clearTimeout(typingIndicatorTimeout);
+    typingIndicatorTimeout = setTimeout(() => row.classList.add("hidden"), 6000);
+  } else {
+    row.classList.add("hidden");
+    clearTimeout(typingIndicatorTimeout);
+  }
+}
+
+/* WS */
+function connectSocket() {
+  if (!me) return;
+  clearTimeout(reconnectTimer);
+  clearInterval(heartbeatTimer);
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  try { ws = new WebSocket(`${proto}//${location.host}/ws`); }
+  catch (err) { scheduleReconnect(); return; }
+
+  ws.onopen = () => {
+    $("connectionStatus").textContent = "online";
+    $("connectionStatus").classList.remove("offline");
+    reconnectDelay = 1000;
+    heartbeatTimer = setInterval(() => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        try { ws.send(JSON.stringify({ type: "ping" })); } catch {}
+      }
+    }, 20000);
+  };
+
+  ws.onmessage = evt => {
+    let data;
+    try { data = JSON.parse(evt.data); } catch { return; }
+    if (data.type === "new_message" && data.message) {
+      const m = data.message;
+      if (activeUser && (m.fromId === activeUser.id || m.toId === activeUser.id)) {
+        addMessage(m);
+        if (m.fromId !== me.id) showTypingIndicator(false);
+      }
+      loadContacts();
+    }
+    if (data.type === "message_status") updateMessageStatus(data.messageId, data.status);
+    if (data.type === "message_deleted" && data.messageId) {
+      removeMessageBubble(data.messageId);
+      if (selectedMessage && selectedMessage.id === data.messageId) deselectMessage();
+    }
+    if (data.type === "typing" && data.from) {
+      if (activeUser && data.from === activeUser.username) showTypingIndicator(Boolean(data.typing));
+    }
+    if (data.type === "user_offline") {
+      if (activeUser && data.username === activeUser.username) showTypingIndicator(false);
+    }
+    if (data.type === "spam_warning") {
+      toast(`⚠ Peringatan ${data.count}/${data.threshold}: ${data.reason}`, "warning");
+    }
+    if (data.type === "report_result") toast(data.message || "Hasil laporan diterima.");
+    if (data.type === "report_penalty") toast(data.message || "Anda diblokir karena dilaporkan.");
+    if (data.type === "account_temp_banned") {
+      toast("Akun Anda diblokir sementara oleh AI. Silakan login untuk detail.", "warning");
+      showLoggedOut();
+    }
+    if (data.type === "account_banned") {
+      toast("Akun diblokir permanen.");
+      showLoggedOut();
+      setTimeout(() => showPermanentBan("Akun diblokir permanen oleh developer."), 200);
+    }
+  };
+
+  ws.onclose = () => {
+    $("connectionStatus").textContent = "offline";
+    $("connectionStatus").classList.add("offline");
+    clearInterval(heartbeatTimer);
+    if (me) scheduleReconnect();
+  };
+  ws.onerror = () => { $("connectionStatus").textContent = "error"; };
+}
+function scheduleReconnect() {
+  clearTimeout(reconnectTimer);
+  reconnectTimer = setTimeout(() => {
+    reconnectDelay = Math.min(reconnectDelay * 1.5, 10000);
+    connectSocket();
+  }, reconnectDelay);
+}
+
+/* MENU */
+$("menuBtn").addEventListener("click", e => {
+  e.stopPropagation();
+  $("menuDropdown").classList.toggle("hidden");
+});
+document.addEventListener("click", e => {
+  const m = $("menuDropdown");
+  if (!m.classList.contains("hidden") && !m.contains(e.target) && e.target !== $("menuBtn")) m.classList.add("hidden");
+});
+$("menuLogoutBtn").addEventListener("click", async () => {
+  $("menuDropdown").classList.add("hidden");
+  try { await api("/api/logout", { method: "POST", body: {} }); } catch {}
+  showLoggedOut();
+});
+
+/* PROFILE */
+$("menuProfileBtn").addEventListener("click", () => {
+  $("menuDropdown").classList.add("hidden");
+  if (!me) return;
+  $("profileMyIdValue").textContent = me.id;
+  $("profileUsername").value = me.username;
+  $("profileBio").value = me.bio || "";
+  clearNotice($("profileNotice"));
+  $("profileModal").classList.remove("hidden");
+});
+$("profileCopyIdBtn").addEventListener("click", () => { if (me) copyText(me.id); });
+$("profileCloseBtn").addEventListener("click", () => $("profileModal").classList.add("hidden"));
+$("profileSaveBtn").addEventListener("click", async () => {
+  const username = $("profileUsername").value.trim();
+  const bio = $("profileBio").value.trim();
+  $("profileSaveBtn").disabled = true;
+  try {
+    const data = await api("/api/profile", { method: "POST", body: { username, bio } });
+    me = data.user;
+    setLoggedIn(me);
+    $("profileModal").classList.add("hidden");
+    toast("Profil diperbarui!");
+  } catch (err) {
+    showNotice($("profileNotice"), err.message, true);
+  } finally { $("profileSaveBtn").disabled = false; }
+});
+
+$("menuNotifBtn").addEventListener("click", () => {
+  $("menuDropdown").classList.add("hidden");
+  const list = $("notifList");
+  list.replaceChildren();
+  const unread = contacts.filter(c => c.unread > 0);
+  if (!unread.length) {
+    const e = document.createElement("div");
+    e.className = "notice success";
+    e.innerHTML = "✅ <b>Tidak ada notifikasi baru.</b>";
+    list.appendChild(e);
+  } else {
+    const e = document.createElement("div");
+    e.className = "notice";
+    e.innerHTML = `<b>${unread.length} chat belum dibaca</b>`;
+    list.appendChild(e);
+    for (const c of unread) {
+      const item = document.createElement("div");
+      item.className = "dev-user-card";
+      item.style.cursor = "pointer";
+      const av = document.createElement("div");
+      av.className = "avatar";
+      setAvatar(av, c);
+      const info = document.createElement("div");
+      info.className = "info";
+      info.innerHTML = `<b>${escapeHtml(c.saved ? displayName(c) : "ID: " + c.id)}</b><small>${c.unread} pesan belum dibaca</small>`;
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = c.unread;
+      item.append(av, info, badge);
+      item.addEventListener("click", () => { $("notifModal").classList.add("hidden"); openChat(c); });
+      list.appendChild(item);
+    }
+  }
+  $("notifModal").classList.remove("hidden");
+});
+$("notifCloseBtn").addEventListener("click", () => $("notifModal").classList.add("hidden"));
+$("menuSettingsBtn").addEventListener("click", () => { $("menuDropdown").classList.add("hidden"); $("settingsModal").classList.remove("hidden"); });
+$("settingsCloseBtn").addEventListener("click", () => $("settingsModal").classList.add("hidden"));
+$("clearCacheBtn").addEventListener("click", () => { try { localStorage.clear(); toast("Cache dibersihkan!"); } catch { toast("Gagal."); } });
+$("menuAboutBtn").addEventListener("click", () => { $("menuDropdown").classList.add("hidden"); $("aboutModal").classList.remove("hidden"); });
+$("aboutCloseBtn").addEventListener("click", () => $("aboutModal").classList.add("hidden"));
+
+/* FAB π */
+$("fabPi").addEventListener("click", () => {
+  $("addFirstName").value = "";
+  $("addLastName").value = "";
+  $("addContactId").value = "";
+  clearNotice($("addContactNotice"));
+  $("addContactModal").classList.remove("hidden");
+  $("addContactId").focus();
+});
+function openAddContactPrefill(contactId) {
+  $("addFirstName").value = "";
+  $("addLastName").value = "";
+  $("addContactId").value = contactId;
+  clearNotice($("addContactNotice"));
+  $("addContactModal").classList.remove("hidden");
+  $("addFirstName").focus();
+}
+$("addContactCloseBtn").addEventListener("click", () => $("addContactModal").classList.add("hidden"));
+$("addContactSaveBtn").addEventListener("click", async () => {
+  const firstName = $("addFirstName").value.trim();
+  const lastName = $("addLastName").value.trim();
+  const contactId = $("addContactId").value.trim();
+  if (!contactId) return showNotice($("addContactNotice"), "ID kontak wajib diisi.", true);
+  if (!firstName) return showNotice($("addContactNotice"), "Nama depan wajib diisi.", true);
+  if (!lastName) return showNotice($("addContactNotice"), "Nama belakang wajib diisi.", true);
+  $("addContactSaveBtn").disabled = true;
+  $("addContactSaveBtn").textContent = "Menyimpan...";
+  try {
+    await api("/api/contacts/save", { method: "POST", body: { firstName, lastName, contactId } });
+    toast("Kontak disimpan!");
+    $("addContactModal").classList.add("hidden");
+    await loadContacts();
+    if (activeUser && activeUser.id === contactId) {
+      const updated = contacts.find(c => c.id === contactId);
+      if (updated) {
+        activeUser = updated;
+        $("chatName").textContent = displayName(updated);
+        $("chatId").textContent = "ID: " + updated.id + (updated.online ? " · online" : "");
+      }
+    }
+  } catch (err) {
+    showNotice($("addContactNotice"), err.message, true);
+  } finally {
+    $("addContactSaveBtn").disabled = false;
+    $("addContactSaveBtn").textContent = "💾 Simpan Kontak";
+  }
+});
+
+/* USER PROFILE */
+function openUserProfile(user) {
+  if (!user) return;
+  setAvatar($("userProfileAvatar"), user);
+  $("userProfileName").textContent = user.saved ? displayName(user) : "User Tak Dikenal";
+  $("userProfileId").textContent = "ID: " + user.id;
+  $("userProfileBio").textContent = (user.saved && user.bio) ? `"${user.bio}"` : "";
+  const status = user.online
+    ? '<span style="color:var(--green-dark);font-weight:900">● Online</span>'
+    : '<span style="color:#888;font-weight:900">● Offline</span>';
+  $("userProfileStatus").innerHTML = status;
+  const addBtn = $("userProfileAddBtn");
+  const blockBtn = $("userProfileBlockBtn");
+  if (user.saved) {
+    addBtn.classList.add("hidden");
+    blockBtn.classList.remove("hidden");
+  } else {
+    addBtn.classList.remove("hidden");
+    blockBtn.classList.remove("hidden");
+  }
+  $("userProfileModal").classList.remove("hidden");
+}
+$("chatAvatar").addEventListener("click", () => activeUser && openUserProfile(activeUser));
+$("chatName").addEventListener("click", () => activeUser && openUserProfile(activeUser));
+$("userProfileCloseBtn").addEventListener("click", () => $("userProfileModal").classList.add("hidden"));
+$("userProfileAddBtn").addEventListener("click", () => {
+  if (!activeUser) return;
+  $("userProfileModal").classList.add("hidden");
+  openAddContactPrefill(activeUser.id);
+});
+$("userProfileBlockBtn").addEventListener("click", async () => {
+  if (!activeUser) return;
+  if (!confirm(`Blokir ${activeUser.saved ? displayName(activeUser) : 'user ini'}?`)) return;
+  try {
+    await api("/api/block", { method: "POST", body: { userId: activeUser.id } });
+    toast("Pengguna diblokir.");
+    $("userProfileModal").classList.add("hidden");
+    closeChat();
+    loadContacts();
+  } catch (err) { toast(err.message); }
+});
+
+/* DEV PANEL */
+$("menuDevBtn").addEventListener("click", () => {
+  $("menuDropdown").classList.add("hidden");
+  $("devPanel").classList.remove("hidden");
+  loadDevUsers();
+  loadDevAppeals();
+  loadDevReports();
+  loadDevLogs();
+});
+$("devCloseBtn").addEventListener("click", () => $("devPanel").classList.add("hidden"));
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    const map = { users: "devUsersTab", appeals: "devAppealsTab", reports: "devReportsTab", logs: "devLogsTab" };
+    $(map[btn.dataset.tab]).classList.add("active");
+  });
+});
+$("devSearch").addEventListener("input", () => renderDevUsers());
+
+async function loadDevUsers() {
+  try {
+    const data = await api("/api/developer/users");
+    devUsersCache = data.users || [];
+    renderDevUsers();
+  } catch (err) { toast(err.message); }
+}
+function renderDevUsers() {
+  const q = ($("devSearch").value || "").trim().toLowerCase();
+  const list = $("devUsersList");
+  list.replaceChildren();
+  const filtered = devUsersCache.filter(u => !q || u.username.toLowerCase().includes(q) || String(u.id).includes(q));
+  if (!filtered.length) {
+    const e = document.createElement("div");
+    e.className = "notice";
+    e.textContent = "Tidak ada user.";
+    list.appendChild(e);
+    return;
+  }
+  for (const u of filtered) {
+    const card = document.createElement("div");
+    card.className = "dev-user-card";
+    const av = document.createElement("div");
+    av.className = "avatar";
+    setAvatar(av, u);
+    const info = document.createElement("div");
+    info.className = "info";
+    info.innerHTML = `<b>${escapeHtml(u.username)}</b><small>${escapeHtml(u.id)}</small>`;
+    const badges = document.createElement("div");
+    badges.className = "badges";
+    if (u.role === "developer") badges.innerHTML += '<span class="dev-badge dev">DEV</span>';
+    if (u.verified) badges.innerHTML += '<span class="dev-badge verified">✓ Verified</span>';
+    if (u.banned) badges.innerHTML += '<span class="dev-badge banned">Ban</span>';
+    else if (u.tempBanned) badges.innerHTML += '<span class="dev-badge temp">Temp Ban</span>';
+    if (u.spamFlags > 0) badges.innerHTML += `<span class="dev-badge flags">${u.spamFlags} flag</span>`;
+
+    const btns = document.createElement("div");
+    btns.className = "btns";
+    if (u.role !== "developer") {
+      if (!u.banned) {
+        const banBtn = document.createElement("button");
+        banBtn.className = "danger";
+        banBtn.textContent = "Ban";
+        banBtn.addEventListener("click", () => devBan(u.username));
+        btns.appendChild(banBtn);
+      } else {
+        const unbanBtn = document.createElement("button");
+        unbanBtn.className = "success";
+        unbanBtn.textContent = "Unban";
+        unbanBtn.addEventListener("click", () => devUnban(u.username));
+        btns.appendChild(unbanBtn);
+      }
+      if (u.tempBanned) {
+        const clr = document.createElement("button");
+        clr.className = "success";
+        clr.textContent = "Cabut Temp";
+        clr.addEventListener("click", () => devUnban(u.username));
+        btns.appendChild(clr);
+      }
+    }
+    const verBtn = document.createElement("button");
+    verBtn.textContent = u.verified ? "✗ Unverif" : "✓ Verif";
+    verBtn.addEventListener("click", () => devVerify(u.username, !u.verified));
+    btns.appendChild(verBtn);
+    card.append(av, info, badges, btns);
+    list.appendChild(card);
+  }
+}
+async function devBan(username) {
+  if (!confirm(`Ban permanen ${username}?`)) return;
+  try { await api("/api/developer/ban", { method: "POST", body: { username } }); toast("User dibanned!"); loadDevUsers(); }
+  catch (err) { toast(err.message); }
+}
+async function devUnban(username) {
+  try { await api("/api/developer/unban", { method: "POST", body: { username } }); toast("User di-unban!"); loadDevUsers(); }
+  catch (err) { toast(err.message); }
+}
+async function devVerify(username, verified) {
+  try { await api("/api/developer/verify", { method: "POST", body: { username, verified } }); toast("Verifikasi diperbarui!"); loadDevUsers(); }
+  catch (err) { toast(err.message); }
+}
+
+async function loadDevAppeals() {
+  try {
+    const data = await api("/api/developer/appeals");
+    renderDevAppeals(data.appeals || []);
+  } catch (err) { toast(err.message); }
+}
+function renderDevAppeals(appeals) {
+  const list = $("devAppealsList");
+  list.replaceChildren();
+  if (!appeals.length) {
+    const e = document.createElement("div");
+    e.className = "notice";
+    e.textContent = "Belum ada banding.";
+    list.appendChild(e);
+    return;
+  }
+  for (const a of appeals) {
+    const card = document.createElement("div");
+    card.className = "appeal-card " + a.status;
+    const header = document.createElement("div");
+    header.className = "appeal-header";
+    header.innerHTML = `<b>${escapeHtml(a.username)}</b>`;
+    const st = document.createElement("span");
+    st.className = "appeal-status " + a.status;
+    st.textContent = a.status.toUpperCase();
+    header.appendChild(st);
+    const banReason = document.createElement("div");
+    banReason.className = "appeal-reason";
+    banReason.innerHTML = `<b>Alasan ban:</b> ${escapeHtml(a.banReason || "-")}`;
+    const chrono = document.createElement("div");
+    chrono.className = "appeal-chrono";
+    chrono.textContent = a.chronology || "";
+    const meta = document.createElement("div");
+    meta.className = "appeal-meta";
+    let metaText = "Diajukan: " + new Date(a.createdAt).toLocaleString();
+    if (a.decidedAt) metaText += " · Diputuskan: " + new Date(a.decidedAt).toLocaleString() + " (" + (a.decidedBy || "-") + ")";
+    meta.textContent = metaText;
+    card.append(header, banReason, chrono, meta);
+    if (a.status === "pending") {
+      const acts = document.createElement("div");
+      acts.className = "appeal-actions";
+      const ap = document.createElement("button");
+      ap.className = "approve";
+      ap.textContent = "✓ Setujui";
+      ap.addEventListener("click", () => devDecideAppeal(a.id, "approve"));
+      const rj = document.createElement("button");
+      rj.className = "reject";
+      rj.textContent = "✗ Tolak";
+      rj.addEventListener("click", () => devDecideAppeal(a.id, "reject"));
+      acts.append(ap, rj);
+      card.appendChild(acts);
+    } else if (a.aiReason) {
+      const r = document.createElement("div");
+      r.className = "appeal-meta";
+      r.innerHTML = `<b>Keputusan:</b> ${escapeHtml(a.aiReason)}`;
+      card.appendChild(r);
+    }
+    list.appendChild(card);
+  }
+}
+async function devDecideAppeal(appealId, decision) {
+  const reason = prompt(decision === "approve" ? "Alasan persetujuan:" : "Alasan penolakan:", decision === "approve" ? "Disetujui." : "Ditolak.");
+  if (reason === null) return;
+  try {
+    await api("/api/developer/appeals/decide", { method: "POST", body: { appealId, decision, reason } });
+    toast("Keputusan tersimpan!");
+    loadDevAppeals();
+    loadDevUsers();
+  } catch (err) { toast(err.message); }
+}
+
+async function loadDevReports() {
+  try {
+    const data = await api("/api/developer/reports");
+    renderDevReports(data.reports || []);
+  } catch (err) { toast(err.message); }
+}
+function renderDevReports(reports) {
+  const list = $("devReportsList");
+  list.replaceChildren();
+  if (!reports.length) {
+    const e = document.createElement("div");
+    e.className = "notice";
+    e.textContent = "Belum ada laporan.";
+    list.appendChild(e);
+    return;
+  }
+  for (const r of reports) {
+    const card = document.createElement("div");
+    card.className = "report-card";
+    card.style.borderLeftWidth = "8px";
+    card.style.borderLeftColor = r.status === "reviewed"
+      ? (r.aiVerdict && r.aiVerdict.violation ? "var(--red)" : "var(--green)")
+      : "#ff8c42";
+    card.innerHTML = `
+      <div class="appeal-header">
+        <b>Laporan oleh ${escapeHtml(r.by)}</b>
+        <span class="appeal-status ${r.status === "reviewed" ? (r.aiVerdict && r.aiVerdict.violation ? "rejected" : "approved") : "pending"}">${escapeHtml(r.status)}</span>
+      </div>
+      <div class="appeal-reason"><b>Target:</b> ${escapeHtml(r.target)} — <b>Alasan:</b> ${escapeHtml(r.reason)}</div>
+      <div class="appeal-chrono">${r.mediaType === "video" ? "🎬 [VIDEO]" : r.mediaType === "image" ? "📷 [FOTO]" : escapeHtml(r.content || "")}</div>
+      ${r.aiVerdict ? `<div class="appeal-meta"><b>AI Verdict:</b> ${r.aiVerdict.violation ? "VIOLATION" : "CLEAN"} (${escapeHtml(r.aiVerdict.category || "-")}) — ${escapeHtml(r.aiVerdict.reason || "")}</div>` : ""}
+      <div class="appeal-meta">${new Date(r.createdAt).toLocaleString()}</div>
+    `;
+    list.appendChild(card);
+  }
+}
+
+async function loadDevLogs() {
+  try {
+    const data = await api("/api/developer/logs");
+    const list = $("devLogsList");
+    list.replaceChildren();
+    const logs = data.logs || [];
+    if (!logs.length) {
+      const e = document.createElement("div");
+      e.className = "notice";
+      e.textContent = "Belum ada log.";
+      list.appendChild(e);
+      return;
+    }
+    for (const l of logs) {
+      const d = document.createElement("div");
+      d.className = "log-item";
+      const when = new Date(l.createdAt).toLocaleString();
+      let desc = "";
+      if (l.type === "auto_temp_ban") desc = `🚫 Temp ban <b>${escapeHtml(l.username)}</b> (strike ${l.strike}) — ${escapeHtml(l.reason)}`;
+      else if (l.type === "manual_ban") desc = `⛔ Ban <b>${escapeHtml(l.username)}</b> oleh ${escapeHtml(l.decider)}`;
+      else if (l.type === "manual_unban") desc = `✅ Unban <b>${escapeHtml(l.username)}</b> oleh ${escapeHtml(l.decider)}`;
+      else if (l.type === "appeal_decided") desc = `${l.decision === "approve" ? "✅" : "❌"} Banding <b>${escapeHtml(l.username)}</b> — ${escapeHtml(l.reason)}`;
+      else desc = escapeHtml(JSON.stringify(l));
+      d.innerHTML = `<div>${desc}</div><div class="log-time">${when}</div>`;
+      list.appendChild(d);
+    }
+  } catch (err) { toast(err.message); }
+}
+
+/* START */
+async function start() {
+  try {
+    const data = await api("/api/me");
+    setLoggedIn(data.user);
+  } catch {
+    showScreen("authScreen");
+  }
+}
+start();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "ranz-x-bug",
+  "version": "3.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "axios": "^1.7.7",
+    "socket.io": "^4.7.5"
+  },
+  "optionalDependencies": {
+    "nodemailer": "^6.9.15",
+    "@whiskeysockets/baileys": "^6.7.9"
+  }
+}
